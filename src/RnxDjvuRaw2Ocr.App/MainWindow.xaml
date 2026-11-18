@@ -1,0 +1,114 @@
+<Window
+    x:Class="RnxDjvuRaw2Ocr.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Rnx · DjVu OCR">
+    <Window.SystemBackdrop><MicaBackdrop /></Window.SystemBackdrop>
+    <Grid x:Name="Root" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Loaded="Root_Loaded">
+        <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel MaxWidth="1120" Padding="36,24,36,20" Spacing="20">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="DJVU / OCR" FontSize="12" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" CharacterSpacing="140" />
+                        <TextBlock Text="Распознавание DJVU" Style="{ThemeResource TitleLargeTextBlockStyle}" />
+                        <TextBlock Text="Добавьте поиск, выделение и копирование текста в вашу книгу." TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                    <Border Grid.Column="1" CornerRadius="8" Padding="14,8" VerticalAlignment="Top" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE72E;" FontSize="14" />
+                            <TextBlock Text="Локальная обработка" FontSize="12" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <InfoBar x:Name="Notice" IsOpen="False" IsClosable="True" />
+
+                <ContentControl x:Name="InputPanel" HorizontalContentAlignment="Stretch">
+                <StackPanel Spacing="20">
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="12" Padding="24">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="01   Документ" FontSize="18" FontWeight="SemiBold" />
+                            <Grid ColumnSpacing="12" AllowDrop="True" DragOver="File_DragOver" Drop="File_Drop">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <TextBox x:Name="InputPathBox" Header="Исходный DJVU" PlaceholderText="Выберите или перетащите файл .djvu" TextChanged="InputPath_TextChanged" />
+                                <Button Grid.Column="1" Content="Обзор…" VerticalAlignment="Bottom" Click="BrowseInput_Click" MinWidth="100" />
+                            </Grid>
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <TextBox x:Name="OutputPathBox" Header="Сохранить с OCR-слоем" PlaceholderText="Путь к результату" />
+                                <Button Grid.Column="1" Content="Сохранить как…" VerticalAlignment="Bottom" Click="BrowseOutput_Click" MinWidth="100" />
+                            </Grid>
+                            <TextBlock Text="Изображения страниц сохраняются без повторного сжатия. Исходный файл остаётся на месте." FontSize="12" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="12" Padding="24">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="02   Распознавание" FontSize="18" FontWeight="SemiBold" />
+                            <Grid ColumnSpacing="24">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                <StackPanel Spacing="8">
+                                    <TextBox x:Name="LanguagesBox" Header="Языки текста" Text="rus+eng" PlaceholderText="rus+eng" />
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Button Content="Русский + English" Tag="rus+eng" Click="LanguagePreset_Click" FontSize="12" Padding="10,5" />
+                                        <Button Content="Русский" Tag="rus" Click="LanguagePreset_Click" FontSize="12" Padding="10,5" />
+                                        <Button Content="English" Tag="eng" Click="LanguagePreset_Click" FontSize="12" Padding="10,5" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Spacing="8">
+                                    <ComboBox x:Name="LayoutBox" Header="Разметка страницы" SelectedIndex="0" HorizontalAlignment="Stretch">
+                                        <ComboBoxItem Content="Автоматически — книги и колонки" Tag="3" />
+                                        <ComboBoxItem Content="Единый блок текста" Tag="6" />
+                                        <ComboBoxItem Content="Отдельные фрагменты текста" Tag="11" />
+                                    </ComboBox>
+                                    <TextBlock Text="Распознаются все страницы документа." FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Expander Header="Инструменты OCR" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Пути определяются автоматически. При необходимости укажите свои установки DjVuLibre и Tesseract." TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBox x:Name="DjvuDirectoryBox" Header="Папка DjVuLibre (ddjvu.exe, djvused.exe)" />
+                            <TextBox x:Name="TesseractPathBox" Header="Tesseract — tesseract.exe" />
+                            <TextBox x:Name="TessdataPathBox" Header="Папка языковых моделей — tessdata" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="Проверить инструменты" Click="CheckTools_Click" />
+                                <Button Content="Найти автоматически" Click="DiscoverTools_Click" />
+                            </StackPanel>
+                            <TextBlock x:Name="ToolsStatusText" TextWrapping="Wrap" IsTextSelectionEnabled="True" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                    </Expander>
+                </StackPanel>
+                </ContentControl>
+
+                <Expander x:Name="PreviewExpander" Header="Распознанный текст последней страницы" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <TextBox x:Name="PreviewTextBox" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="120" MaxHeight="320" ScrollViewer.VerticalScrollBarVisibility="Auto" PlaceholderText="Здесь появится текст во время обработки." />
+                </Expander>
+            </StackPanel>
+        </ScrollViewer>
+        <Border Grid.Row="1" MaxWidth="1048" Margin="36,0,36,24" HorizontalAlignment="Stretch" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="12" Padding="24">
+                    <StackPanel Spacing="16">
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel Spacing="4" VerticalAlignment="Center">
+                                <TextBlock x:Name="StatusText" Text="Всё начинается с выбора книги" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock x:Name="DetailText" Text="Результат — DJVU с текстовым слоем на каждой странице." TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <Button x:Name="CancelButton" Content="Отменить" Click="Cancel_Click" Visibility="Collapsed" />
+                                <Button x:Name="StartButton" Content="Распознать документ" Style="{StaticResource AccentButtonStyle}" Click="Start_Click" Padding="20,12" />
+                            </StackPanel>
+                        </Grid>
+                        <ProgressBar x:Name="OcrProgressBar" Minimum="0" Maximum="100" Value="0" />
+                        <StackPanel x:Name="ResultActions" Orientation="Horizontal" Spacing="8" Visibility="Collapsed">
+                            <Button Content="Открыть результат" Click="OpenResult_Click" />
+                            <Button Content="Показать в папке" Click="ShowResult_Click" />
+                        </StackPanel>
+                    </StackPanel>
+        </Border>
+    </Grid>
+</Window>

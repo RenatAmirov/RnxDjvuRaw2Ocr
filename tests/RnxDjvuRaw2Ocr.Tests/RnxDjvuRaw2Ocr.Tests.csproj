@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="all" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.13" />
+    <ProjectReference Include="..\..\src\RnxDjvuRaw2Ocr.Core\RnxDjvuRaw2Ocr.Core.csproj" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>
